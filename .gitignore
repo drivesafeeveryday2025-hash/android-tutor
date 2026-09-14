@@ -1,0 +1,93 @@
+# ===========================================================================
+# 1. Sensitive Credentials & API Keys (CRITICAL - NEVER COMMIT TO GIT)
+# ===========================================================================
+# Active API keys and environment configurations (keep local only)
+lib/core/config/env_config.dart
+*.env
+*.env.*
+*.env.local
+
+# Android release signing keys and Google Cloud service credentials
+android/app/key.properties
+android/key.properties
+android/app/google-services.json
+*.jks
+*.keystore
+
+# iOS certificates, profiles, and Google Cloud credentials
+ios/Runner/GoogleService-Info.plist
+*.mobileprovision
+*.cer
+*.p12
+*.key
+*.pem
+
+# ===========================================================================
+# 2. Private Documentation & Planning Folders
+# ===========================================================================
+# Internal architecture blueprints, prompts, and software design documents
+plan/
+/plan/
+
+# ===========================================================================
+# 3. Flutter & Dart Build Artifacts & Ephemeral Directories
+# ===========================================================================
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub/
+.pub-cache/
+/build/
+build/
+/coverage/
+**/doc/api/
+**/ios/Flutter/.last_build_id
+ios/Flutter/ephemeral/
+ios/Pods/
+.symlinks/
+windows/flutter/ephemeral/
+
+# ===========================================================================
+# 4. Symbolication & Obfuscation Mapping
+# ===========================================================================
+app.*.symbols
+app.*.map.json
+
+# ===========================================================================
+# 5. Native IDEs & Local Editors
+# ===========================================================================
+# VS Code local workspace settings
+.vscode/
+
+# IntelliJ / Android Studio
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Android Studio build output
+/android/app/debug/
+/android/app/profile/
+/android/app/release/
+
+# Flutter Widget Preview
+.widget_preview/
+
+# ===========================================================================
+# 6. Operating System & Miscellaneous Temporary Files
+# ===========================================================================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+*.class
+*.log
+*.pyc
+*.swp
+*~
+.history
+.build/
+.buildlog/
+.atom/
+.svn/
+.swiftpm/
+migrate_working_dir/
