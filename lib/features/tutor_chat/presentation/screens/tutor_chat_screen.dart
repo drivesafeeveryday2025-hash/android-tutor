@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -169,21 +170,32 @@ class _TutorChatScreenState extends ConsumerState<TutorChatScreen> {
       }
     });
 
-    return Scaffold(
-      appBar: AppBar(
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          ref.read(chatControllerProvider.notifier).stopTts();
+          ref.read(chatControllerProvider.notifier).stopListening();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const CircleAvatar(
+            CircleAvatar(
               radius: 14,
               backgroundColor: AppColors.primaryIndigo,
-              child: Text('E', style: TextStyle(color: Colors.white, fontSize: 12)),
+              child: Text(
+                EnvConfig.tutorName.isNotEmpty ? EnvConfig.tutorName[0] : 'C',
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
             ),
             const SizedBox(width: 8),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Emma (AI Tutor)', style: TextStyle(fontSize: 16)),
+                Text('${EnvConfig.tutorName} (AI Tutor)', style: const TextStyle(fontSize: 16)),
                 Text(
                   'Fluency: ${state.fluencyScore}%',
                   style: const TextStyle(fontSize: 11, color: AppColors.emeraldSuccess),
@@ -272,70 +284,91 @@ class _TutorChatScreenState extends ConsumerState<TutorChatScreen> {
                 ],
               ),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-
                   // Mic / Voice Button
-                  GestureDetector(
-                    onTap: _handleMicTap,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: state.isRecording
-                            ? AppColors.roseError
-                            : AppColors.primaryIndigo,
-                        shape: BoxShape.circle,
-                        boxShadow: state.isRecording
-                            ? [
-                                BoxShadow(
-                                  color: AppColors.roseError.withValues(alpha: 0.5),
-                                  blurRadius: 10,
-                                  spreadRadius: 2,
-                                )
-                              ]
-                            : null,
-                      ),
-                      child: Icon(
-                        state.isRecording ? Icons.stop_rounded : Icons.mic_rounded,
-                        color: Colors.white,
-                        size: 22,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-
-                  // Text Input
-                  Expanded(
-                    child: TextField(
-                      controller: _textController,
-                      onSubmitted: (_) => _handleSend(),
-                      decoration: InputDecoration(
-                        hintText: state.isRecording
-                            ? 'Listening... Speak in English now'
-                            : 'Type a message or tap mic to speak...',
-                        hintStyle: TextStyle(
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: GestureDetector(
+                      onTap: _handleMicTap,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
                           color: state.isRecording
                               ? AppColors.roseError
-                              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-                          fontSize: 14,
-                          fontWeight: state.isRecording ? FontWeight.w600 : FontWeight.normal,
+                              : AppColors.primaryIndigo,
+                          shape: BoxShape.circle,
+                          boxShadow: state.isRecording
+                              ? [
+                                  BoxShadow(
+                                    color: AppColors.roseError.withValues(alpha: 0.5),
+                                    blurRadius: 10,
+                                    spreadRadius: 2,
+                                  )
+                                ]
+                              : null,
                         ),
-                        filled: true,
-                        fillColor: Theme.of(context).scaffoldBackgroundColor,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide.none,
+                        child: Icon(
+                          state.isRecording ? Icons.stop_rounded : Icons.mic_rounded,
+                          color: Colors.white,
+                          size: 22,
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
 
+                  // Expandable Text Input (Supports long sentences & paragraphs)
+                  Expanded(
+                    child: Focus(
+                      onKeyEvent: (node, event) {
+                        if (event is KeyDownEvent &&
+                            event.logicalKey == LogicalKeyboardKey.enter &&
+                            !HardwareKeyboard.instance.isShiftPressed) {
+                          _handleSend();
+                          return KeyEventResult.handled;
+                        }
+                        return KeyEventResult.ignored;
+                      },
+                      child: TextField(
+                        controller: _textController,
+                        minLines: 1,
+                        maxLines: 6,
+                        keyboardType: TextInputType.multiline,
+                        textCapitalization: TextCapitalization.sentences,
+                        style: const TextStyle(fontSize: 15, height: 1.4),
+                        decoration: InputDecoration(
+                          hintText: state.isRecording
+                              ? 'Listening... Speak in English now'
+                              : 'Type a message or tap mic to speak...',
+                          hintStyle: TextStyle(
+                            color: state.isRecording
+                                ? AppColors.roseError
+                                : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                            fontSize: 14,
+                            fontWeight: state.isRecording ? FontWeight.w600 : FontWeight.normal,
+                          ),
+                          filled: true,
+                          fillColor: Theme.of(context).scaffoldBackgroundColor,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+
                   // Send Button
-                  IconButton(
-                    icon: const Icon(Icons.send_rounded, color: AppColors.primaryIndigo),
-                    onPressed: _handleSend,
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 2),
+                    child: IconButton(
+                      icon: const Icon(Icons.send_rounded, color: AppColors.primaryIndigo),
+                      onPressed: _handleSend,
+                    ),
                   ),
                 ],
               ),
@@ -343,6 +376,7 @@ class _TutorChatScreenState extends ConsumerState<TutorChatScreen> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

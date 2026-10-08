@@ -44,7 +44,7 @@ class DirectOpenAiTutorService implements IAiTutorService {
     }
 
     final systemPrompt = '''
-You are Emma, a friendly, patient, and encouraging AI English tutor.
+You are ${EnvConfig.tutorName}, a friendly, patient, and encouraging AI English tutor.
 Your mission is to converse with the user in natural English while helping them improve their grammar, vocabulary, and structure.
 
 CONVERSATION RULES:
@@ -122,7 +122,7 @@ CRITICAL: Respond ONLY in valid JSON matching this schema:
   }) async {
     final StringBuffer historyBuffer = StringBuffer();
     for (final m in conversationHistory) {
-      final role = m['role'] == 'user' ? 'User' : 'Emma';
+      final role = m['role'] == 'user' ? 'User' : EnvConfig.tutorName;
       final content = m['content'] ?? '';
       if (content.trim().isNotEmpty && content.trim() != userMessage.trim()) {
         historyBuffer.writeln('$role: $content');
@@ -133,7 +133,7 @@ CRITICAL: Respond ONLY in valid JSON matching this schema:
         : "\nPrior Conversation History:\n${historyBuffer.toString()}\n";
 
     final prompt = '''
-You are Emma, an intelligent, friendly, patient, and encouraging AI English tutor.
+You are ${EnvConfig.tutorName}, an intelligent, friendly, patient, and encouraging AI English tutor.
 User CEFR Level: $cefrLevel. Active Topic: $scenarioTitle.
 $historyContext
 Latest message from user: "$userMessage"
@@ -150,7 +150,7 @@ Instructions:
 
 CRITICAL: Return ONLY valid JSON without backticks matching this schema:
 {
-  "conversationalResponse": "Emma's conversational response here",
+  "conversationalResponse": "${EnvConfig.tutorName}'s conversational response here",
   "grammarCorrection": {
     "hasError": true,
     "originalSentence": "user's error sentence",
@@ -305,7 +305,7 @@ CRITICAL: Return ONLY valid JSON without backticks matching this schema:
     } else if (lower.contains('anyone there') || lower.contains('anyone here') || lower.contains('hello?')) {
       reply = "I'm right here with you! Ready whenever you are. What's on your mind today?";
     } else if (lower.contains('name') || lower.contains('who are you')) {
-      reply = "I'm Emma, your personal AI English tutor! You can tell me anything about your day or practice speaking with me.";
+      reply = "I'm ${EnvConfig.tutorName}, your personal AI English tutor! You can tell me anything about your day or practice speaking with me.";
     } else if (hasError) {
       reply = "I understand what you meant! A more natural phrasing is: '$corrected'. How did that go?";
     } else {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/config/env_config.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/models/grammar_correction.dart';
 import 'grammar_correction_card.dart';
@@ -42,12 +43,12 @@ class ChatBubble extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               if (!isUser) ...[
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 16,
                   backgroundColor: AppColors.primaryIndigo,
                   child: Text(
-                    'E',
-                    style: TextStyle(
+                    EnvConfig.tutorName.isNotEmpty ? EnvConfig.tutorName[0] : 'C',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 14,

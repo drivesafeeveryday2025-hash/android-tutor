@@ -7,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
+import '../../../../core/config/env_config.dart';
 import '../../data/services/direct_openai_tutor_service.dart';
 import '../../data/services/google_cloud_tts_service.dart';
 import '../../data/services/i_ai_tutor_service.dart';
@@ -136,7 +137,7 @@ class ChatController extends StateNotifier<ChatState> {
 
   bool _voiceConfigured = false;
 
-  /// Dynamically queries available system voices and strictly selects a female English voice for Emma.
+  /// Dynamically queries available system voices and strictly selects a female English voice for Chole.
   /// Explicitly filters out male voices (e.g. Google US English, David, Mark, Guy)
   /// and prioritizes natural female online voices, Google UK English Female, or Microsoft Zira.
   Future<void> _ensureNaturalVoiceSelected() async {
@@ -168,7 +169,7 @@ class ChatController extends StateNotifier<ChatState> {
                 name.contains('english');
             if (!isEnglish) continue;
 
-            // 2. Strict Male Exclusion: NEVER assign a male voice to Emma
+            // 2. Strict Male Exclusion: NEVER assign a male voice to Chole
             // Note: In Chrome, 'Google US English' is a male voice!
             final isMale = gender == 'male' ||
                 name.contains('google us english') ||
@@ -193,6 +194,8 @@ class ChatController extends StateNotifier<ChatState> {
             final hasFemaleName = name.contains('female') ||
                 name.contains('jenny') ||
                 name.contains('aria') ||
+                name.contains('chloe') ||
+                name.contains('lily') ||
                 name.contains('emma') ||
                 name.contains('ava') ||
                 name.contains('ana') ||
@@ -240,7 +243,7 @@ class ChatController extends StateNotifier<ChatState> {
     state = state.copyWith(
       messages: [
         ChatMessageItem(
-          text: "Hi there! I'm Emma, your English tutor. What would you like to talk about today?",
+          text: "Hi there! I'm ${EnvConfig.tutorName}, your English tutor. What would you like to talk about today?",
           isUser: false,
         ),
       ],

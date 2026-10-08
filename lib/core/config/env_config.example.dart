@@ -18,6 +18,6 @@ class EnvConfig {
   static const String googleTtsVoice = 'en-US-Journey-F';
 
   /// Default AI Tutor Name
-  static const String tutorName = 'Emma';
+  static const String tutorName = 'Lily';
 }
 
